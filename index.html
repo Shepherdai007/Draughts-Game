@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="KingsMakers Draughts">
+  <meta name="description" content="KingsMakers Draughts - A professional 3D draughts game with stunning visuals, 3 themes, and AI opponent">
+  <meta name="theme-color" content="#2a1a0a">
+  <meta name="application-name" content="KingsMakers Draughts">
+
+  <!-- Open Graph / Play Store preview -->
+  <meta property="og:title" content="KingsMakers Draughts 3D">
+  <meta property="og:description" content="Play 3D Draughts against a computer AI with beautiful themes and professional gameplay">
+  <meta property="og:type" content="website">
+
+  <title>KingsMakers Draughts 3D</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Icons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-192.png">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- Preconnect for Three.js CDN -->
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════
+       SCREEN 1: INTRO
+       ══════════════════════════════════════════ -->
+  <div id="screen-intro" class="screen active">
+    <canvas id="intro-canvas"></canvas>
+    <div class="intro-skip">Tap to skip</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SCREEN 2: MAIN MENU
+       ══════════════════════════════════════════ -->
+  <div id="screen-menu" class="screen">
+    <!-- Decorative background -->
+    <div class="menu-bg"></div>
+
+    <!-- Decorative board grid -->
+    <div class="menu-board-bg" id="menu-board-bg"></div>
+
+    <div class="menu-content">
+      <!-- Logo -->
+      <div class="logo-container">
+        <span class="logo-crown">👑</span>
+        <h1 class="logo-title">KingsMakers</h1>
+        <p class="logo-subtitle">Draughts 3D</p>
+      </div>
+
+      <!-- Score strip -->
+      <div class="score-strip">
+        <div class="score-item">
+          <span class="score-label">You</span>
+          <span class="score-value" id="score-player">0</span>
+        </div>
+        <div class="score-sep">⚔</div>
+        <div class="score-item">
+          <span class="score-label">CPU</span>
+          <span class="score-value" id="score-computer">0</span>
+        </div>
+      </div>
+
+      <!-- Main buttons -->
+      <button id="btn-play" class="btn-3d btn-play">
+        <span>⚔</span> Play Game
+      </button>
+
+      <button id="btn-settings" class="btn-3d btn-settings">
+        <span>⚙</span> Settings
+      </button>
+
+      <button id="btn-scoreboard" class="btn-3d btn-scoreboard">
+        <span>🏆</span> Scoreboard
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SCREEN 3: SETTINGS
+       ══════════════════════════════════════════ -->
+  <div id="screen-settings" class="screen">
+    <div class="settings-content">
+      <h2 class="screen-title">⚙ Settings</h2>
+
+      <!-- Themes -->
+      <div class="settings-section">
+        <div class="section-label">🎨 Board Theme</div>
+        <div class="theme-grid">
+          <div class="theme-card selected" data-theme="classic">
+            <span class="theme-icon">🌲</span>
+            <div class="theme-name">Classic Wood</div>
+            <div class="theme-preview">
+              <div class="theme-swatch" style="background:#6b3a1f"></div>
+              <div class="theme-swatch" style="background:#f5deb3"></div>
+              <div class="theme-swatch" style="background:#ffd700"></div>
+            </div>
+          </div>
+          <div class="theme-card" data-theme="neon">
+            <span class="theme-icon">⚡</span>
+            <div class="theme-name">Neon Cyber</div>
+            <div class="theme-preview">
+              <div class="theme-swatch" style="background:#0a0a2a"></div>
+              <div class="theme-swatch" style="background:#00ffe0"></div>
+              <div class="theme-swatch" style="background:#ff00aa"></div>
+            </div>
+          </div>
+          <div class="theme-card" data-theme="marble">
+            <span class="theme-icon">👑</span>
+            <div class="theme-name">Royal Marble</div>
+            <div class="theme-preview">
+              <div class="theme-swatch" style="background:#2c2c4a"></div>
+              <div class="theme-swatch" style="background:#e8e4f0"></div>
+              <div class="theme-swatch" style="background:#c5a028"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Difficulty -->
+      <div class="settings-section">
+        <div class="section-label">🤖 AI Difficulty</div>
+        <div class="diff-row">
+          <button class="diff-btn selected" data-diff="easy">
+            <span class="diff-icon">😊</span>
+            Easy
+          </button>
+          <button class="diff-btn" data-diff="hard">
+            <span class="diff-icon">🔥</span>
+            Hard
+          </button>
+        </div>
+      </div>
+
+      <!-- Sound -->
+      <div class="settings-section">
+        <div class="section-label">🔊 Sound</div>
+        <div class="sound-row">
+          <span class="sound-label">Sound Effects</span>
+          <button id="btn-sound-toggle" class="btn-icon">🔊</button>
+        </div>
+      </div>
+
+      <!-- How to play -->
+      <div class="settings-section">
+        <div class="section-label">📖 How to Play</div>
+        <ul style="font-size:0.85rem;line-height:1.8;opacity:0.8;padding-left:18px">
+          <li>Tap a <strong>white piece</strong> to select it</li>
+          <li>Tap a <strong>highlighted square</strong> to move</li>
+          <li>Jump over enemy pieces to capture them</li>
+          <li>Reach the far end to become a <strong>👑 King</strong></li>
+          <li>Kings can move <strong>backward</strong> too!</li>
+          <li>If you can capture, you <strong>must</strong></li>
+          <li>Capture all enemy pieces to win!</li>
+        </ul>
+      </div>
+
+      <button id="btn-settings-back" class="btn-3d btn-back">
+        ← Back to Menu
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SCREEN 4: SCOREBOARD
+       ══════════════════════════════════════════ -->
+  <div id="screen-scoreboard" class="screen">
+    <div class="scoreboard-content">
+      <h2 class="screen-title">🏆 Scoreboard</h2>
+
+      <div class="stat-card">
+        <div class="stat-row">
+          <div class="stat-player">
+            <div class="stat-num" id="sb-player-wins">0</div>
+            <div class="stat-lbl">⚪ Your Wins</div>
+          </div>
+          <div class="stat-vs">VS</div>
+          <div class="stat-computer">
+            <div class="stat-num" id="sb-computer-wins">0</div>
+            <div class="stat-lbl">🤖 CPU Wins</div>
+          </div>
+        </div>
+
+        <div class="bar-container">
+          <div class="bar-row">
+            <span class="bar-label">⚪ You</span>
+            <div class="bar-track">
+              <div class="bar-fill bar-player" id="sb-player-bar" style="width:50%"></div>
+            </div>
+            <span class="bar-pct" id="sb-player-pct">50%</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">🤖 CPU</span>
+            <div class="bar-track">
+              <div class="bar-fill bar-computer" id="sb-computer-bar" style="width:50%"></div>
+            </div>
+            <span class="bar-pct" id="sb-computer-pct">50%</span>
+          </div>
+        </div>
+
+        <div class="total-games">
+          Total games played: <strong id="sb-total">0</strong>
+        </div>
+      </div>
+
+      <button id="btn-reset-scores" class="btn-3d btn-back" style="background:linear-gradient(160deg,#993333,#661111);box-shadow:0 5px 0 #440000">
+        🗑 Reset Scores
+      </button>
+
+      <button id="btn-scoreboard-back" class="btn-3d btn-back">
+        ← Back to Menu
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SCREEN 5: GAME
+       ══════════════════════════════════════════ -->
+  <div id="screen-game" class="screen">
+    <!-- 3D Canvas -->
+    <canvas id="game-canvas" style="position:absolute;inset:0;width:100%;height:100%"></canvas>
+
+    <!-- Top HUD -->
+    <div class="game-hud">
+      <button id="btn-game-menu" class="btn-icon" title="Menu">🏠</button>
+      <div class="piece-count computer" id="computer-pieces">♟ 12 (0👑)</div>
+      <div style="flex:1"></div>
+      <div class="piece-count player" id="player-pieces">♟ 12 (0👑)</div>
+      <button id="btn-game-restart" class="btn-icon" title="Restart">🔄</button>
+    </div>
+
+    <!-- Bottom status -->
+    <div class="game-status-bar">
+      <div id="game-status">Your turn — select a piece</div>
+      <div class="game-actions">
+        <button id="btn-game-hint" class="btn-icon" title="Hint">💡</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       GAME OVER OVERLAY (shared)
+       ══════════════════════════════════════════ -->
+  <div id="screen-gameover" class="gameover-overlay">
+    <div class="gameover-card">
+      <span id="gameover-icon" class="gameover-icon">🏆</span>
+      <h2 id="gameover-title" class="gameover-title">Congratulations!</h2>
+      <p id="gameover-msg" class="gameover-msg">You won the game!</p>
+      <div class="gameover-btns">
+        <button id="btn-gameover-play" class="btn-3d btn-win"
+          style="box-shadow:0 5px 0 #073c16,0 7px 18px rgba(0,0,0,0.5)">
+          ⚔ Play Again
+        </button>
+        <button id="btn-gameover-menu" class="btn-3d btn-back">
+          🏠 Main Menu
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confetti container -->
+  <div id="confetti-container"></div>
+
+  <!-- Ad Banner placeholder (enable for monetization) -->
+  <div class="ad-banner" id="ad-banner">
+    <span class="ad-text">Advertisement</span>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SCRIPTS
+       ══════════════════════════════════════════ -->
+  <!-- Three.js for 3D rendering (local copy for PWA offline support) -->
+  <script src="js/three.min.js"></script>
+
+  <!-- Game modules (order matters) -->
+  <script src="js/themes.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/sounds.js"></script>
+  <script src="js/board3d.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- Service Worker registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('SW registered:', reg.scope))
+          .catch(err => console.warn('SW registration failed:', err));
+      });
+    }
+
+    // Build the decorative board tiles on menu
+    window.addEventListener('DOMContentLoaded', () => {
+      const bg = document.getElementById('menu-board-bg');
+      if (bg) {
+        for (let r = 0; r < 8; r++) {
+          for (let c = 0; c < 8; c++) {
+            const cell = document.createElement('div');
+            cell.className = `menu-board-cell ${(r + c) % 2 === 1 ? 'dark' : 'light'}`;
+            bg.appendChild(cell);
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
