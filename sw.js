@@ -10,6 +10,7 @@ const STATIC_ASSETS = [
   '/manifest.json',
   '/css/styles.css',
   '/js/three.min.js',
+  '/js/themes.js',
   '/js/game.js',
   '/js/ai.js',
   '/js/sounds.js',

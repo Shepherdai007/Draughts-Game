@@ -174,11 +174,17 @@ class App {
         ctx.fillStyle = grad;
         ctx.fillText(logoText, cx, cy);
 
-        // Subtitle
+        // Subtitle — draw with manual spacing for canvas compatibility
         ctx.shadowBlur = 15;
         ctx.font = `700 ${Math.floor(titleSize * 0.45)}px 'Segoe UI', Arial, sans-serif`;
         ctx.fillStyle = '#c8a0ff';
-        ctx.letterSpacing = '0.5em';
+        // Render spaced subtitle by drawing chars individually
+        const chars = subText.split('');
+        const charW = Math.floor(titleSize * 0.45) * 0.72;
+        const totalW = chars.length * charW;
+        chars.forEach((ch, i) => {
+          ctx.fillText(ch, cx - totalW / 2 + i * charW + charW / 2, cy + titleSize * 0.75);
+        });
         ctx.fillText(subText, cx, cy + titleSize * 0.75);
 
         ctx.shadowBlur = 0;
