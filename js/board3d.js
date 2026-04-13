@@ -430,7 +430,7 @@ class Board3D {
   }
 
   /** Highlight valid destination squares */
-  showHighlights(squares, selectedPos) {
+  showHighlights(squares, selectedPos, pathSquares = []) {
     this.clearHighlights();
     const t = this.theme;
 
@@ -445,7 +445,18 @@ class Board3D {
       this.highlightedSquares.push(mesh);
     }
 
-    // Valid move indicators
+    // Intermediate path indicators for multi-jump chains (orange, smaller)
+    for (const [row, col] of pathSquares) {
+      const pos = this._getWorldPos(row, col);
+      const geo = new THREE.CylinderGeometry(0.32, 0.32, 0.08, 32);
+      const mat = new THREE.MeshBasicMaterial({ color: t.pathColor || 0xffaa00, transparent: true, opacity: 0.65 });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(pos.x, 0.32, pos.z);
+      this._highlightGroup.add(mesh);
+      this.highlightedSquares.push(mesh);
+    }
+
+    // Valid move indicators (final destinations)
     for (const [row, col] of squares) {
       const pos = this._getWorldPos(row, col);
       const geo = new THREE.CylinderGeometry(0.5, 0.5, 0.08, 32);

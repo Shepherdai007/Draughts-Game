@@ -13,6 +13,7 @@ class App {
     this.difficulty = 'easy';
     this.selectedPiece = null;
     this.validMoves = [];
+    this._intermediateSquares = new Map(); // key: "row,col" -> first chain move containing that step
     this.isComputerThinking = false;
     this.currentScreen = null;
     this._loadSettings();
@@ -498,10 +499,16 @@ class App {
     const piece = this.game.board[row][col];
 
     if (this.selectedPiece) {
-      // Try to execute a move to this square
+      // Try to execute a move to this square (final destination)
       const move = this.validMoves.find(m => m.to[0] === row && m.to[1] === col);
       if (move) {
         this._executePlayerMove(move);
+        return;
+      }
+      // If clicked on an intermediate step of a multi-jump chain, execute that full chain
+      const chainMove = this._intermediateSquares.get(`${row},${col}`);
+      if (chainMove) {
+        this._executePlayerMove(chainMove);
         return;
       }
       // If clicked on own piece, select it instead
@@ -512,6 +519,7 @@ class App {
       // Deselect
       this.selectedPiece = null;
       this.validMoves = [];
+      this._intermediateSquares = new Map();
       this.board3d.clearHighlights();
       return;
     }
@@ -533,15 +541,33 @@ class App {
     this.validMoves = moves;
     this.sounds.playSelect();
 
-    // Highlight valid destinations
+    // Build lookup for intermediate path squares in multi-jump chains.
+    // Key: "row,col" of any intermediate step → the chain move to execute for it.
+    this._intermediateSquares = new Map();
+    const pathSet = new Set();
+    for (const m of moves) {
+      if (m.path && m.path.length > 1) {
+        for (let i = 0; i < m.path.length - 1; i++) {
+          const key = `${m.path[i][0]},${m.path[i][1]}`;
+          if (!this._intermediateSquares.has(key)) {
+            this._intermediateSquares.set(key, m);
+          }
+          pathSet.add(key);
+        }
+      }
+    }
+    const pathSquares = [...pathSet].map(k => k.split(',').map(Number));
+
+    // Highlight final landing squares and intermediate path squares
     const dests = moves.map(m => m.to);
-    this.board3d.showHighlights(dests, [row, col]);
+    this.board3d.showHighlights(dests, [row, col], pathSquares);
     this._updateGameStatus('Choose where to move');
   }
 
   _executePlayerMove(move) {
     this.selectedPiece = null;
     this.validMoves = [];
+    this._intermediateSquares = new Map();
     this.board3d.clearHighlights();
 
     const captured = move.captures || [];
