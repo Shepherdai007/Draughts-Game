@@ -13,7 +13,7 @@ class App {
     this.difficulty = 'easy';
     this.selectedPiece = null;
     this.validMoves = [];
-    this._intermediateSquares = new Map(); // key: "row,col" -> first chain move containing that step
+    this._intermediateSquares = new Map(); // key: "row,col" -> chain move to execute; when multiple chains share an intermediate square, the first encountered chain is used
     this.isComputerThinking = false;
     this.currentScreen = null;
     this._loadSettings();
@@ -542,7 +542,10 @@ class App {
     this.sounds.playSelect();
 
     // Build lookup for intermediate path squares in multi-jump chains.
+    // m.path contains the landing squares starting from the FIRST jump landing (not the
+    // starting square m.from), so indices 0..length-2 are true intermediate steps.
     // Key: "row,col" of any intermediate step → the chain move to execute for it.
+    // When multiple chains share an intermediate square, the first encountered chain is stored.
     this._intermediateSquares = new Map();
     const pathSet = new Set();
     for (const m of moves) {
